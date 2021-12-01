@@ -1820,6 +1820,59 @@ public:
 };
 ```
 
+# 面试题60：n个骰子的点数
+
+```c++
+class Solution {
+public:
+    vector<int> numberOfDice(int n) {
+        vector<int> ans;
+        //可能的数是n ~ 6 * n
+        for(int i = n; i <= 6 * n; i++)
+            ans.push_back(dfs(n, i));
+        //dfs(n, s)表示扔n次和为s的方案数
+        return ans;
+    }
+    int dfs(int n, int s)
+    {
+        if(!n && !s)
+            return 1;
+        else if(!n)
+            return 0;
+        if(s <= 0)
+            return 0;
+        int sum = 0;
+        //每扔一次，有六种情况
+        for(int i = 1; i <= 6; i++)
+            sum += dfs(n - 1, s - i);
+        return sum;
+    }
+};
+
+```
+
+```c++
+class Solution {
+public:
+    vector<int> numberOfDice(int n) {
+        vector<vector<int>> dp(n + 1, vector<int>(6 * n + 1, 0));
+        vector<int> ans;
+        dp[0][0] = 1;
+        for(int i = 1; i <= n; i++) //扔几次骰子
+            for(int j = i; j <= 6 * i; j++)//h
+                for(int k = 1; k <= min(j, 6); k++)
+                    //i<6的时候k可能达不到6
+                    dp[i][j] += dp[i - 1][j - k];
+        for(int i = n; i <= 6 * n; i++)
+            ans.push_back(dp[n][i]);
+        return ans;
+    }
+};
+
+```
+
+
+
 # 面试题64：求1+ 2 + 3+ ...+ n
 
 递归做 + 终止条件（使用短路）
