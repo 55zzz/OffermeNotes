@@ -1859,7 +1859,7 @@ public:
         vector<int> ans;
         dp[0][0] = 1;
         for(int i = 1; i <= n; i++) //扔几次骰子
-            for(int j = i; j <= 6 * i; j++)//h
+            for(int j = i; j <= 6 * i; j++)//和为多少
                 for(int k = 1; k <= min(j, 6); k++)
                     //i<6的时候k可能达不到6
                     dp[i][j] += dp[i - 1][j - k];
@@ -1871,7 +1871,103 @@ public:
 
 ```
 
+# 面试题61：扑克牌中的顺子
 
+对数组进行排序，统计其中0万能牌的个数，然后遍历后面的牌，如果出现相同的肯定不是顺子，如果之间不连续，用万能排去补。如果最后万能牌刚好用完就是顺子！
+
+```c++
+class Solution {
+public:
+    bool isContinuous( vector<int> numbers ) {
+        if(numbers.empty()) return false;
+        sort(numbers.begin(), numbers.end());
+        int n0 = 0;
+        while(n0 < numbers.size() && numbers[n0] == 0) n0++;
+        for(int i = n0; i < numbers.size() - 1; i++)
+        {
+            if(numbers[i] == numbers[i + 1])
+                return false;
+            if(numbers[i + 1] - numbers[i] > 1)
+                n0 = n0 - (numbers[i + 1] - numbers[i] - 1);
+            if(n0 < 0)
+                return false;
+        }
+        return n0 == 0;
+    }
+};
+```
+
+# 面试题62：圆圈中最后剩下的数字
+
+模拟环状链表
+
+```c++
+#include<list>
+class Solution {
+public:
+    int lastRemaining(int n, int m){
+        list<int> c;
+        for(int i = 0; i < n; i++)
+            c.push_back(i);
+        auto iter = c.begin();
+        
+        while(c.size() > 1)
+        {
+            int k = m - 1;
+            while(k--)
+            {
+                iter++;
+                if(iter == c.end())
+                    iter = c.begin();
+            }
+            iter = c.erase(iter);
+            if(iter == c.end())
+                iter = c.begin();
+        }
+        return c.front();
+    }
+};
+```
+
+可以用静态数组模拟链表
+
+dp推理，不太理解
+
+```c++
+class Solution {
+public:
+    int lastRemaining(int n, int m){
+        int f[n + 1];//在n个数中删除第m个数
+        f[1] = 0;
+        for(int i = 2; i <= n; i++)
+            f[i] = (f[i - 1] + m) % i;
+        return f[n];
+    }
+};
+```
+
+# 面试题63：股票的最大利润
+
+一次遍历求最大的差值，mi记录遍历到第i个时前面的最小值
+
+```c++
+class Solution {
+public:
+    int maxDiff(vector<int>& nums) {
+        int n = nums.size();
+        if(n == 0) return 0;
+        int mi = nums[0];
+        int ans = 0;
+        for(int i = 1; i < n; i++)
+        {
+            if(nums[i] - mi > ans)
+                ans = nums[i] - mi;
+            mi = min(mi, nums[i]);
+        }
+        return ans;
+    }
+};
+```
 
 # 面试题64：求1+ 2 + 3+ ...+ n
 
@@ -1884,6 +1980,48 @@ public:
         int ans = n;
         (n > 0) && (ans += getSum(n - 1));
         return ans;
+    }
+};
+```
+
+# 面试题65：不用加减乘除做加法
+
+```c++
+class Solution {
+public:
+    int add(int num1, int num2){
+        while(num2 != 0)
+        {
+            int sum = num1 ^ num2;//不进位加法
+            int carry = (num1 & num2) << 1; //计算进位
+            num1 = sum; //再次循环将sum和carry相加
+            num2 = carry;
+        }
+        return num1;
+    }
+};
+```
+
+# 面试题66：构建乘积数组
+
+比较奇妙的一个思路~
+
+```c++
+class Solution {
+public:
+    vector<int> multiply(const vector<int>& A) {
+        if(A.empty()) return {};
+        vector<int> B(A.size());
+        B[0] = 1;
+        for(int i = 1; i < A.size(); i++)
+            B[i] = B[i - 1] * A[i - 1];
+        int tmp = 1;
+        for(int j = A.size() - 2; j >= 0; j--)
+        {
+            tmp = tmp * A[j + 1];
+            B[j] = B[j] * tmp;
+        }
+        return B;
     }
 };
 ```
